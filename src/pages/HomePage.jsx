@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { Chart, Line } from "react-chartjs-2";
 import "chart.js/auto";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 const energyData = {
   labels: [
@@ -287,11 +288,7 @@ const HomePage = () => {
               minHeight: 180,
             }}
           >
-            <img
-              src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=800&q=80"
-              alt="room"
-              style={{ width: "100%", height: 180, objectFit: "cover" }}
-            />
+            <SlideshowImages />
             <div
               style={{
                 position: "absolute",
@@ -660,6 +657,54 @@ function StatusBar({
       <span style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>
         {status}
       </span>
+    </div>
+  );
+}
+
+const slideshowImages = [
+  "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80",
+];
+
+function SlideshowImages() {
+  const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState("next");
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDirection("next");
+      setIndex((prev) => (prev + 1) % slideshowImages.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div style={{ width: "100%", height: 180, position: "relative" }}>
+      <TransitionGroup component={null}>
+        <CSSTransition
+          key={slideshowImages[index]}
+          timeout={600}
+          classNames={direction === "next" ? "slide-next" : "slide-prev"}
+        >
+          <img
+            src={slideshowImages[index]}
+            alt="room"
+            style={{
+              width: "100%",
+              height: 180,
+              objectFit: "cover",
+              position: "absolute",
+              left: 0,
+              top: 0,
+              borderRadius: 0,
+              transition: "all 0.6s cubic-bezier(.77,0,.18,1)",
+            }}
+          />
+        </CSSTransition>
+      </TransitionGroup>
     </div>
   );
 }
