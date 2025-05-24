@@ -15,52 +15,384 @@ import "chart.js/auto";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { useHistory } from "react-router-dom";
 import { auth } from "../utils/firebase";
+import { getDatabase, ref, onValue, update } from "firebase/database";
 
-const energyData = {
-  labels: [
-    "15 Mon",
-    "16 Tue",
-    "17 Wed",
-    "18 Thu",
-    "19 Fri",
-    "20 Sat",
-    "21 Sun",
-    "22 Mon",
-    "23 Tue",
-    "24 Wed",
-    "25 Thu",
-    "26 Fri",
-    "27 Sat",
-    "28 Sun",
-    "29 Mon",
-  ],
-  datasets: [
-    {
-      label: "Humidity",
-      data: [10, 20, 15, 30, 25, 40, 35, 30, 20, 25, 30, 40, 35, 45, 50],
-      borderColor: "#00bcd4",
-      backgroundColor: "rgba(0,188,212,0.0)",
-      borderWidth: 3,
-      tension: 0.4,
-      pointRadius: 0,
-      pointHoverRadius: 0,
-      fill: false,
-      yAxisID: "y",
-    },
-    {
-      label: "Temperature",
-      data: [20, 30, 25, 40, 35, 50, 45, 40, 30, 35, 40, 50, 45, 55, 30],
-      borderColor: "#d6a4ff",
-      backgroundColor: "rgba(214,164,255,0.0)",
-      borderWidth: 3,
-      tension: 0.4,
-      pointRadius: 0,
-      pointHoverRadius: 0,
-      fill: false,
-      yAxisID: "y",
-    },
-  ],
-};
+function getTimeLabels() {
+  const now = new Date();
+  // Làm tròn xuống 30 phút gần nhất
+  now.setMinutes(now.getMinutes() - (now.getMinutes() % 30), 0, 0);
+  const labels = [];
+  for (let i = 15; i >= 0; i--) {
+    // 24 mốc cho 12 tiếng
+    const d = new Date(now.getTime() - i * 30 * 60 * 1000);
+    labels.push(
+      d.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+    );
+  }
+  return labels;
+}
+
+const timeLabels = getTimeLabels();
+// const humidityData = Array.from(
+//   { length: 16 },
+//   () => Math.floor(Math.random() * 30) + 40
+// );
+// const temperatureData = Array.from(
+//   { length: 16 },
+//   () => Math.floor(Math.random() * 10) + 20
+// );
+
+function HomePage() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [deviceStates, setDeviceStates] = useState({
+    doorState: false,
+    fanState: false,
+    light1State: false,
+    light2State: false,
+  });
+  const [chartData, setChartData] = useState({
+    humidity: Array(timeLabels.length).fill(null),
+    temperature: Array(timeLabels.length).fill(null),
+  });
+  const history = useHistory();
+
+  useEffect(() => {
+    // Lắng nghe trạng thái đăng nhập
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setLoading(false);
+      if (!user) {
+        history.replace("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [history]);
+
+  useEffect(() => {
+    const db = getDatabase();
+    const dbRef = ref(db);
+    const off = onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      console.log("Firebase data:", data);
+      setDeviceStates({
+        doorState: data.doorState,
+        fanState: data.fanState,
+        light1State: data.light1State,
+        light2State: data.light2State,
+      });
+      console.log("Device states:", deviceStates);
+      // Lấy dữ liệu humidity và temperature từ Firebase
+      const humidityObj = data.humidity || {};
+      const temperatureObj = data.temperature || {};
+      console.log("humidityObj:", humidityObj);
+      console.log("temperatureObj:", temperatureObj);
+
+      // Map dữ liệu vào đúng mốc thời gian
+      const humidityArr = timeLabels.map((label) =>
+        humidityObj[label] !== undefined ? humidityObj[label] : 0
+      );
+      const temperatureArr = timeLabels.map((label) =>
+        temperatureObj[label] !== undefined ? temperatureObj[label] : 0
+      );
+
+      setChartData({
+        humidity: humidityArr,
+        temperature: temperatureArr,
+      });
+    });
+    return () => off();
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      setSidebarCollapsed(e.detail);
+    };
+    window.addEventListener("sidebar:collapse", handler);
+    return () => window.removeEventListener("sidebar:collapse", handler);
+  }, []);
+
+  // Hàm cập nhật trạng thái thiết bị lên Firebase
+  const handleToggle = (key, value) => {
+    const db = getDatabase();
+    update(ref(db), { [key]: value });
+  };
+
+  if (loading) return null;
+
+  const monitorData = {
+    labels: timeLabels,
+    datasets: [
+      {
+        label: "Humidity",
+        data: chartData.humidity,
+        borderColor: "#00bcd4",
+        backgroundColor: "rgba(0,188,212,0.0)",
+        borderWidth: 3,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+        yAxisID: "y",
+      },
+      {
+        label: "Temperature",
+        data: chartData.temperature,
+        borderColor: "#d6a4ff",
+        backgroundColor: "rgba(214,164,255,0.0)",
+        borderWidth: 3,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+        yAxisID: "y",
+      },
+    ],
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: `
+      linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+      url('https://images.wallpaperscraft.com/image/single/furniture_sofa_white_83779_1920x1080.jpg')
+    center/cover no-repeat`,
+        padding: 32,
+        fontFamily: "Inter, sans-serif",
+        position: "relative",
+      }}
+    >
+      {/* Main Grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1.2fr 1.8fr",
+          gridTemplateRows: "auto auto",
+          gap: 32,
+          maxWidth: 1200,
+          margin: "0 auto",
+          position: "relative",
+          zIndex: 2,
+          color: "#fff",
+          transition: "margin-left 0.5s",
+        }}
+      >
+        {/* Left Column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          {/* Active Devices */}
+          <div style={glassCard}>
+            <h3 style={{ fontWeight: 600 }}>Active Devices</h3>
+            <p
+              style={{
+                fontSize: 13,
+                color: "rgba(255,255,255,0.8)",
+                marginBottom: 16,
+              }}
+            >
+              Track Active Devices for connectivity.
+            </p>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 16,
+              }}
+            >
+              <DeviceCard
+                icon={<FaLightbulb size={22} />}
+                name="Room 1 Light"
+                time="6hr 10min"
+                checked={deviceStates.light1State}
+                onToggle={() =>
+                  handleToggle("light1State", !deviceStates.light1State)
+                }
+              />
+              <DeviceCard
+                icon={<FaLightbulb size={22} />}
+                name="Room 2 Light"
+                time="3hr 45min"
+                checked={deviceStates.light2State}
+                onToggle={() =>
+                  handleToggle("light2State", !deviceStates.light2State)
+                }
+              />
+              <DeviceCard
+                icon={<FaRegDotCircle size={22} />}
+                name="Fan"
+                time="2hr 30min"
+                checked={deviceStates.fanState}
+                onToggle={() =>
+                  handleToggle("fanState", !deviceStates.fanState)
+                }
+              />
+              <DeviceCard
+                icon={<FaDoorOpen size={22} />}
+                name="Door"
+                time="Opened 1 time"
+                checked={deviceStates.doorState}
+                onToggle={() =>
+                  handleToggle("doorState", !deviceStates.doorState)
+                }
+              />
+            </div>
+          </div>
+          {/* Camera */}
+          <div
+            style={{
+              ...glassCard,
+              padding: 0,
+              overflow: "hidden",
+              position: "relative",
+              minHeight: 180,
+            }}
+          >
+            <SlideshowImages />
+            <div
+              style={{
+                position: "absolute",
+                top: 12,
+                left: 12,
+                background: "rgba(255,0,0,0.7)",
+                color: "#fff",
+                borderRadius: 8,
+                padding: "2px 10px",
+                fontSize: 12,
+              }}
+            >
+              ● Live
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                display: "flex",
+                gap: 8,
+              }}
+            >
+              <FaRegDotCircle size={18} style={{ color: "#fff" }} />
+              <FaLightbulb size={18} style={{ color: "#fff" }} />
+              <FaMusic size={18} style={{ color: "#fff" }} />
+            </div>
+          </div>
+          {/* Voice Assistant */}
+          <div
+            style={{
+              ...glassCard,
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <FaMicrophone size={22} />
+              <span style={{ fontWeight: 600 }}>Voice Assistant</span>
+            </div>
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>
+              Voice control your smart home.
+            </span>
+            <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
+              <SwitchIcon
+                icon={<FaBluetooth />}
+                label="Bluetooth"
+                checked={true}
+                subLabel="Connected to JBL"
+              />
+              <SwitchIcon
+                icon={<FaWifi />}
+                label="WIFI"
+                subLabel="Disconnected"
+              />
+            </div>
+          </div>
+        </div>
+        {/* Right Column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          {/* Humidity & Temperature Status Bar*/}
+          <div style={{ display: "flex", gap: 16 }}>
+            <HumidityStatusBar
+              value={chartData.humidity[chartData.humidity.length - 1]}
+            />
+            <TemperatureStatusBar
+              value={chartData.temperature[chartData.temperature.length - 1]}
+            />
+          </div>
+          {/* Humidity & Temperature Chart */}
+          <div
+            style={{
+              ...glassCard,
+              flex: 1,
+              minHeight: "30vh",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              paddingTop: 8,
+              paddingBottom: "20vh",
+            }}
+          >
+            <h3 style={{ fontWeight: 600, marginBottom: 0, marginTop: 0 }}>
+              Humidity & Temperature
+            </h3>
+            <span
+              style={{
+                fontSize: 13,
+                color: "rgba(255,255,255,0.8)",
+                marginBottom: 8,
+              }}
+            >
+              Monitor humidity and temperature.
+            </span>
+            <div style={{ height: 180 }}>
+              <Line data={monitorData} options={energyOptions} />
+            </div>
+          </div>
+          {/* Doorbell & Homepad Mini */}
+          <div style={{ display: "flex", gap: 16 }}>
+            <div
+              style={{
+                ...glassCard,
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}
+            >
+              <FaDoorOpen size={38} style={{ color: "#222" }} />
+              <span style={{ fontWeight: 600 }}>Doorbell</span>
+              <Switch checked={false} />
+            </div>
+            <div
+              style={{
+                ...glassCard,
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}
+            >
+              <img
+                src="https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/homepod-mini-select-202110?wid=2000&hei=2000&fmt=jpeg&qlt=95&.v=1632925511000"
+                alt="Homepad Mini"
+                style={{ width: 48, height: 48, borderRadius: "50%" }}
+              />
+              <span style={{ fontWeight: 600 }}>Homepad Mini</span>
+              <Switch checked={false} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const energyOptions = {
   responsive: true,
   plugins: {
@@ -164,254 +496,6 @@ const energyOptions = {
   },
 };
 
-const HomePage = () => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const history = useHistory();
-
-  useEffect(() => {
-    // Lắng nghe trạng thái đăng nhập
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setLoading(false);
-      if (!user) {
-        history.replace("/login");
-      }
-    });
-    const handler = (e) => {
-      setSidebarCollapsed(e.detail);
-    };
-    window.addEventListener("sidebar:collapse", handler);
-    return () => {
-      unsubscribe();
-      window.removeEventListener("sidebar:collapse", handler);
-    };
-  }, [history]);
-
-  if (loading) return null; // hoặc return một spinner nếu muốn
-
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: `
-      linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-      url('https://images.wallpaperscraft.com/image/single/furniture_sofa_white_83779_1920x1080.jpg')
-    center/cover no-repeat`,
-        padding: 32,
-        fontFamily: "Inter, sans-serif",
-        position: "relative",
-      }}
-    >
-      {/* Main Grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.2fr 1.8fr",
-          gridTemplateRows: "auto auto",
-          gap: 32,
-          maxWidth: 1200,
-          margin: "0 auto",
-          position: "relative",
-          zIndex: 2,
-          color: "#fff",
-          transition: "margin-left 0.5s",
-        }}
-      >
-        {/* Left Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          {/* Active Devices */}
-          <div style={glassCard}>
-            <h3 style={{ fontWeight: 600 }}>Active Devices</h3>
-            <p
-              style={{
-                fontSize: 13,
-                color: "rgba(255,255,255,0.8)",
-                marginBottom: 16,
-              }}
-            >
-              Track Active Devices for connectivity.
-            </p>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 16,
-              }}
-            >
-              <DeviceCard
-                icon={<FaLightbulb size={22} />}
-                name="Room 1 Light"
-                time="6hr 10min"
-                checked
-              />
-              <DeviceCard
-                icon={<FaLightbulb size={22} />}
-                name="Room 2 Light"
-                time="3hr 45min"
-                checked
-              />
-              <DeviceCard
-                icon={<FaRegDotCircle size={22} />}
-                name="Fan"
-                time="2hr 30min"
-                checked
-              />
-              <DeviceCard
-                icon={<FaDoorOpen size={22} />}
-                name="Door"
-                time="Opened 1 time"
-              />
-            </div>
-          </div>
-          {/* Voice Assistant */}
-          <div
-            style={{
-              ...glassCard,
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <FaMicrophone size={22} />
-              <span style={{ fontWeight: 600 }}>Voice Assistant</span>
-            </div>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>
-              Voice control your smart home.
-            </span>
-            <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
-              <SwitchIcon
-                icon={<FaBluetooth />}
-                label="Bluetooth"
-                checked
-                subLabel="Connected to JBL"
-              />
-              <SwitchIcon
-                icon={<FaWifi />}
-                label="WIFI"
-                subLabel="Disconnected"
-              />
-            </div>
-          </div>
-          {/* Camera */}
-          <div
-            style={{
-              ...glassCard,
-              padding: 0,
-              overflow: "hidden",
-              position: "relative",
-              minHeight: 180,
-            }}
-          >
-            <SlideshowImages />
-            <div
-              style={{
-                position: "absolute",
-                top: 12,
-                left: 12,
-                background: "rgba(255,0,0,0.7)",
-                color: "#fff",
-                borderRadius: 8,
-                padding: "2px 10px",
-                fontSize: 12,
-              }}
-            >
-              ● Live
-            </div>
-            <div
-              style={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                display: "flex",
-                gap: 8,
-              }}
-            >
-              <FaRegDotCircle size={18} style={{ color: "#fff" }} />
-              <FaLightbulb size={18} style={{ color: "#fff" }} />
-              <FaMusic size={18} style={{ color: "#fff" }} />
-            </div>
-          </div>
-        </div>
-        {/* Right Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          {/* Humidity & Temperature */}
-          <div style={{ display: "flex", gap: 16 }}>
-            <HumidityStatusBar value={60} />
-            <TemperatureStatusBar value={18} />
-          </div>
-          {/* Energy Usage Chart */}
-          <div
-            style={{
-              ...glassCard,
-              flex: 1,
-              minHeight: "30vh",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              paddingTop: 8,
-              paddingBottom: "20vh",
-            }}
-          >
-            <h3 style={{ fontWeight: 600, marginBottom: 0, marginTop: 0 }}>
-              Humidity & Temperature
-            </h3>
-            <span
-              style={{
-                fontSize: 13,
-                color: "rgba(255,255,255,0.8)",
-                marginBottom: 8,
-              }}
-            >
-              Monitor humidity and temperature.
-            </span>
-            <div style={{ height: 180 }}>
-              <Line data={energyData} options={energyOptions} />
-            </div>
-          </div>
-          {/* Doorbell & Homepad Mini */}
-          <div style={{ display: "flex", gap: 16 }}>
-            <div
-              style={{
-                ...glassCard,
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-              }}
-            >
-              <FaDoorOpen size={38} style={{ color: "#222" }} />
-              <span style={{ fontWeight: 600 }}>Doorbell</span>
-              <Switch checked />
-            </div>
-            <div
-              style={{
-                ...glassCard,
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-              }}
-            >
-              <img
-                src="https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/homepod-mini-select-202110?wid=2000&hei=2000&fmt=jpeg&qlt=95&.v=1632925511000"
-                alt="Homepad Mini"
-                style={{ width: 48, height: 48, borderRadius: "50%" }}
-              />
-              <span style={{ fontWeight: 600 }}>Homepad Mini</span>
-              <Switch />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Glassmorphism card style
 const glassCard = {
   background: "rgba(40,40,60,0.32)",
@@ -425,7 +509,7 @@ const glassCard = {
 };
 
 // Device Card
-function DeviceCard({ icon, name, on, time, power, checked }) {
+function DeviceCard({ icon, name, on, time, power, checked, onToggle }) {
   return (
     <div
       style={{
@@ -461,19 +545,18 @@ function DeviceCard({ icon, name, on, time, power, checked }) {
       <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
         {power}
       </div>
-      <Switch checked={checked} />
+      <Switch checked={checked} onToggle={onToggle} />
     </div>
   );
 }
 
 // Switch dạng button
-function Switch({ checked: checkedProp }) {
-  const [checked, setChecked] = useState(!!checkedProp);
+function Switch({ checked, onToggle }) {
   return (
     <button
       type="button"
       aria-pressed={checked}
-      onClick={() => setChecked((v) => !v)}
+      onClick={onToggle}
       style={{
         display: "inline-block",
         width: 44,

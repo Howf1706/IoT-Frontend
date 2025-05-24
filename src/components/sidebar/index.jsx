@@ -32,17 +32,24 @@ const Sidebar = () => {
       <NavItem icon={"fa-home"} link={"/"} text={t("home")} />
 
       <NavItem icon={"fa-user"} link={"/profile"} text={t("profile")} />
-
+      <CollapsibleNavItem
+        id={"collapsePages"}
+        icon={"fa-cogs"}
+        text={t("settings")}
+        subtext={"Screens:"}
+        items={[
+          ["Login", "login"],
+          ["Register", "login"],
+          ["Logout", ""],
+        ]}
+      />
       <NavItem icon={"fa-cogs"} link={"/settings"} text={t("settings")} />
-
       <hr className="sidebar-divider" />
-
       <div className="sidebar-heading">Interface</div>
-
       <CollapsibleNavItem
         id={"collapseTwo"}
         icon={"fa-cog"}
-        text={"Components"}
+        text={"Support"}
         subtext={"Custom Components:"}
         items={[
           ["Buttons", "buttons.html"],
@@ -62,24 +69,6 @@ const Sidebar = () => {
           ["Other", "utilities-other.html"],
         ]}
       />
-
-      <hr className="sidebar-divider" />
-
-      <div className="sidebar-heading">{t("navigation")}</div>
-
-      <CollapsibleNavItem
-        id={"collapsePages"}
-        icon={"fa-folder"}
-        text={t("pages")}
-        subtext={"Screens:"}
-        items={[
-          ["Login", "login"],
-          ["Register", "register.html"],
-          ["Logout", ""],
-        ]}
-      />
-
-      <hr className="sidebar-divider d-none d-md-block" />
 
       {/* Sidebar Toggler (Sidebar) */}
       <div className="text-center d-none d-md-inline">
