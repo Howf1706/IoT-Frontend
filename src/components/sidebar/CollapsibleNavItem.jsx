@@ -1,15 +1,35 @@
 import React from "react";
+import { useHistory } from "react-router-dom";
+import { auth } from "../../utils/firebase";
 
 const SubItems = (props) => {
+  const history = useHistory();
   const items = new Map(props.items);
   const subItems = [];
 
   items.forEach((link, item) => {
-    subItems.push(
-      <a className="collapse-item" href={link} key={link}>
-        {item}
-      </a>
-    );
+    if (item === "Logout") {
+      subItems.push(
+        <a
+          className="collapse-item"
+          href="#"
+          key="logout"
+          onClick={async (e) => {
+            e.preventDefault();
+            await auth.signOut();
+            history.push("/login");
+          }}
+        >
+          {item}
+        </a>
+      );
+    } else {
+      subItems.push(
+        <a className="collapse-item" href={link} key={link}>
+          {item}
+        </a>
+      );
+    }
   });
   return <>{subItems}</>;
 };

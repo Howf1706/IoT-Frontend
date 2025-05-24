@@ -73,9 +73,9 @@ const Sidebar = () => {
         text={t("pages")}
         subtext={"Screens:"}
         items={[
-          ["Login", "login.html"],
+          ["Login", "login"],
           ["Register", "register.html"],
-          ["Blank Page", "blank.html"],
+          ["Logout", ""],
         ]}
       />
 

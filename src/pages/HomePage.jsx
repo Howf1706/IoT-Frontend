@@ -13,6 +13,8 @@ import {
 import { Chart, Line } from "react-chartjs-2";
 import "chart.js/auto";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { useHistory } from "react-router-dom";
+import { auth } from "../utils/firebase";
 
 const energyData = {
   labels: [
@@ -112,7 +114,7 @@ const energyOptions = {
           return "";
         },
         labelTextColor: (ctx) =>
-          ctx.dataset.label === "Humidity" ? "#d6a4ff" : "#00bcd4",
+          ctx.dataset.label === "Temperature" ? "#d6a4ff" : "#00bcd4",
       },
       bodyFont: { weight: "bold", size: 15 },
       padding: 14,
@@ -164,15 +166,28 @@ const energyOptions = {
 
 const HomePage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const history = useHistory();
 
   useEffect(() => {
+    // Lắng nghe trạng thái đăng nhập
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setLoading(false);
+      if (!user) {
+        history.replace("/login");
+      }
+    });
     const handler = (e) => {
-      console.log("HomePage nhận sự kiện:", e.detail);
       setSidebarCollapsed(e.detail);
     };
     window.addEventListener("sidebar:collapse", handler);
-    return () => window.removeEventListener("sidebar:collapse", handler);
-  }, []);
+    return () => {
+      unsubscribe();
+      window.removeEventListener("sidebar:collapse", handler);
+    };
+  }, [history]);
+
+  if (loading) return null; // hoặc return một spinner nếu muốn
 
   return (
     <div
