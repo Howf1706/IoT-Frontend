@@ -7,6 +7,11 @@ import { loadPageScript } from "../../utils/pagescript";
 const Sidebar = () => {
   const { t } = useTranslation();
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  };
+
   useEffect(() => {
     loadPageScript();
   });
@@ -32,30 +37,36 @@ const Sidebar = () => {
       <NavItem icon={"fa-home"} link={"/"} text={t("home")} />
 
       <NavItem icon={"fa-user"} link={"/profile"} text={t("profile")} />
-      <CollapsibleNavItem
-        id={"collapsePages"}
-        icon={"fa-cogs"}
-        text={t("settings")}
-        subtext={"Screens:"}
-        items={[
-          ["Login", "login"],
-          ["Register", "login"],
-          ["Logout", ""],
-        ]}
-      />
+      <NavItem icon={"fa-comments"} link={"/chat"} text={"Chat"} />
       <NavItem icon={"fa-cogs"} link={"/settings"} text={t("settings")} />
+      <button
+        onClick={handleLogout}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "10px 16px",
+          background: "transparent",
+          border: "none",
+          color: "red",
+          cursor: "pointer",
+          width: "100%",
+          textAlign: "left",
+          fontSize: "14px",
+          transition: "background-color 0.2s",
+        }}
+        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
+        onMouseOut={(e) =>
+          (e.currentTarget.style.backgroundColor = "transparent")
+        }
+      >
+        <i className="fas fa-sign-out-alt" style={{ width: "20px" }}></i>
+        Logout
+      </button>
+
       <hr className="sidebar-divider" />
       <div className="sidebar-heading">Interface</div>
-      <CollapsibleNavItem
-        id={"collapseTwo"}
-        icon={"fa-cog"}
-        text={"Support"}
-        subtext={"Custom Components:"}
-        items={[
-          ["Buttons", "buttons.html"],
-          ["Cards", "cards.html"],
-        ]}
-      />
+      <CollapsibleNavItem id={"collapseTwo"} icon={"fa-cog"} text={"Support"} />
 
       <CollapsibleNavItem
         id={"collapseUtilities"}

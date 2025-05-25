@@ -17,6 +17,7 @@ import EMSPage from "./pages/EMSPage";
 import { createContext, useState } from "react";
 import useLocalStorage from "./hooks/use-local-storage";
 import LoginPage from "./pages/LoginPage";
+import ChatPage from "./pages/ChatPage";
 
 const AppContext = createContext(null);
 
@@ -69,6 +70,9 @@ function App() {
                     </Route>
                     <Route exact path="/">
                       <HomePage />
+                    </Route>
+                    <Route exact path="/chat">
+                      <ChatPage />
                     </Route>
                     <Route exact path="*">
                       <ErrorPage />
