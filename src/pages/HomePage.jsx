@@ -157,238 +157,258 @@ function HomePage() {
     <div
       style={{
         minHeight: "100vh",
-        background: `
-      linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-      url('https://images.wallpaperscraft.com/image/single/furniture_sofa_white_83779_1920x1080.jpg')
-    center/cover no-repeat`,
-        padding: 32,
+        background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.wallpaperscraft.com/image/single/furniture_sofa_white_83779_1920x1080.jpg') center/cover no-repeat`,
         fontFamily: "Inter, sans-serif",
         position: "relative",
+        overflowX: "auto",
       }}
     >
-      {/* Main Grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.2fr 1.8fr",
-          gridTemplateRows: "auto auto",
-          gap: 32,
-          maxWidth: 1200,
-          margin: "0 auto",
-          position: "relative",
-          zIndex: 2,
-          color: "#fff",
-          transition: "margin-left 0.5s",
-        }}
-      >
-        {/* Left Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          {/* Active Devices */}
-          <div style={glassCard}>
-            <h3 style={{ fontWeight: 600 }}>Active Devices</h3>
-            <p
-              style={{
-                fontSize: 13,
-                color: "rgba(255,255,255,0.8)",
-                marginBottom: 16,
-              }}
-            >
-              Track Active Devices for connectivity.
-            </p>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 16,
-              }}
-            >
-              <DeviceCard
-                icon={<FaLightbulb size={22} />}
-                name="Room 1 Light"
-                time="6hr 10min"
-                checked={deviceStates.light1State}
-                onToggle={() =>
-                  handleToggle("light1State", !deviceStates.light1State)
-                }
-              />
-              <DeviceCard
-                icon={<FaLightbulb size={22} />}
-                name="Room 2 Light"
-                time="3hr 45min"
-                checked={deviceStates.light2State}
-                onToggle={() =>
-                  handleToggle("light2State", !deviceStates.light2State)
-                }
-              />
-              <DeviceCard
-                icon={<FaRegDotCircle size={22} />}
-                name="Fan"
-                time="2hr 30min"
-                checked={deviceStates.fanState}
-                onToggle={() =>
-                  handleToggle("fanState", !deviceStates.fanState)
-                }
-              />
-              <DeviceCard
-                icon={<FaDoorOpen size={22} />}
-                name="Door"
-                time="Opened 1 time"
-                checked={deviceStates.doorState}
-                onToggle={() =>
-                  handleToggle("doorState", !deviceStates.doorState)
-                }
-              />
-            </div>
-          </div>
-          {/* Camera */}
+      <div style={{ padding: 32 }}>
+        <div
+          style={{
+            width: "fit-content",
+            minWidth: "100vw",
+          }}
+        >
           <div
+            className="homepage-main-grid"
             style={{
-              ...glassCard,
-              padding: 0,
-              overflow: "hidden",
+              display: "grid",
+              gridTemplateColumns: "1.2fr 1.8fr",
+              gridTemplateRows: "auto auto",
+              gap: 32,
               position: "relative",
-              minHeight: 180,
+              zIndex: 2,
+              color: "#fff",
+              transition: "margin-left 0.5s",
+              paddingBottom: "32px",
+              margin: "0 auto",
+              width: "100%",
+              maxWidth: 1200,
             }}
           >
-            <SlideshowImages />
-            <div
-              style={{
-                position: "absolute",
-                top: 12,
-                left: 12,
-                background: "rgba(255,0,0,0.7)",
-                color: "#fff",
-                borderRadius: 8,
-                padding: "2px 10px",
-                fontSize: 12,
-              }}
-            >
-              ● Live
+            {/* Left Column */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              {/* Active Devices */}
+              <div style={glassCard}>
+                <h3 style={{ fontWeight: 600 }}>Active Devices</h3>
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: "rgba(255,255,255,0.8)",
+                    marginBottom: 16,
+                  }}
+                >
+                  Track Active Devices for connectivity.
+                </p>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 16,
+                  }}
+                >
+                  <DeviceCard
+                    icon={<FaLightbulb size={22} />}
+                    name="Room 1 Light"
+                    time="6hr 10min"
+                    checked={deviceStates.light1State}
+                    onToggle={() =>
+                      handleToggle("light1State", !deviceStates.light1State)
+                    }
+                  />
+                  <DeviceCard
+                    icon={<FaLightbulb size={22} />}
+                    name="Room 2 Light"
+                    time="3hr 45min"
+                    checked={deviceStates.light2State}
+                    onToggle={() =>
+                      handleToggle("light2State", !deviceStates.light2State)
+                    }
+                  />
+                  <DeviceCard
+                    icon={<FaRegDotCircle size={22} />}
+                    name="Fan"
+                    time="2hr 30min"
+                    checked={deviceStates.fanState}
+                    onToggle={() =>
+                      handleToggle("fanState", !deviceStates.fanState)
+                    }
+                  />
+                  <DeviceCard
+                    icon={<FaDoorOpen size={22} />}
+                    name="Door"
+                    time="Opened 1 time"
+                    checked={deviceStates.doorState}
+                    onToggle={() =>
+                      handleToggle("doorState", !deviceStates.doorState)
+                    }
+                  />
+                </div>
+              </div>
+              {/* Camera */}
+              <div
+                style={{
+                  ...glassCard,
+                  padding: 0,
+                  overflow: "hidden",
+                  position: "relative",
+                  minHeight: 180,
+                }}
+              >
+                <SlideshowImages />
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 12,
+                    left: 12,
+                    background: "rgba(255,0,0,0.7)",
+                    color: "#fff",
+                    borderRadius: 8,
+                    padding: "2px 10px",
+                    fontSize: 12,
+                  }}
+                >
+                  ● Live
+                </div>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 12,
+                    right: 12,
+                    display: "flex",
+                    gap: 8,
+                  }}
+                >
+                  <FaRegDotCircle size={18} style={{ color: "#fff" }} />
+                  <FaLightbulb size={18} style={{ color: "#fff" }} />
+                  <FaMusic size={18} style={{ color: "#fff" }} />
+                </div>
+              </div>
+              {/* Voice Assistant */}
+              <div
+                style={{
+                  ...glassCard,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <FaMicrophone size={22} />
+                  <span style={{ fontWeight: 600 }}>Voice Assistant</span>
+                </div>
+                <span style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>
+                  Voice control your smart home.
+                </span>
+                <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
+                  <SwitchIcon
+                    icon={<FaBluetooth />}
+                    label="Bluetooth"
+                    checked={true}
+                    subLabel="Connected to JBL"
+                  />
+                  <SwitchIcon
+                    icon={<FaWifi />}
+                    label="WIFI"
+                    subLabel="Disconnected"
+                  />
+                </div>
+              </div>
             </div>
-            <div
-              style={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                display: "flex",
-                gap: 8,
-              }}
-            >
-              <FaRegDotCircle size={18} style={{ color: "#fff" }} />
-              <FaLightbulb size={18} style={{ color: "#fff" }} />
-              <FaMusic size={18} style={{ color: "#fff" }} />
-            </div>
-          </div>
-          {/* Voice Assistant */}
-          <div
-            style={{
-              ...glassCard,
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <FaMicrophone size={22} />
-              <span style={{ fontWeight: 600 }}>Voice Assistant</span>
-            </div>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>
-              Voice control your smart home.
-            </span>
-            <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
-              <SwitchIcon
-                icon={<FaBluetooth />}
-                label="Bluetooth"
-                checked={true}
-                subLabel="Connected to JBL"
-              />
-              <SwitchIcon
-                icon={<FaWifi />}
-                label="WIFI"
-                subLabel="Disconnected"
-              />
-            </div>
-          </div>
-        </div>
-        {/* Right Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          {/* Humidity & Temperature Status Bar*/}
-          <div style={{ display: "flex", gap: 16 }}>
-            <HumidityStatusBar
-              value={chartData.humidity[chartData.humidity.length - 1]}
-            />
-            <TemperatureStatusBar
-              value={chartData.temperature[chartData.temperature.length - 1]}
-            />
-          </div>
-          {/* Humidity & Temperature Chart */}
-          <div
-            style={{
-              ...glassCard,
-              flex: 1,
-              minHeight: "30vh",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              paddingTop: 8,
-              paddingBottom: "20vh",
-            }}
-          >
-            <h3 style={{ fontWeight: 600, marginBottom: 0, marginTop: 0 }}>
-              Humidity & Temperature
-            </h3>
-            <span
-              style={{
-                fontSize: 13,
-                color: "rgba(255,255,255,0.8)",
-                marginBottom: 8,
-              }}
-            >
-              Monitor humidity and temperature.
-            </span>
-            <div style={{ height: 180 }}>
-              <Line data={monitorData} options={energyOptions} />
-            </div>
-          </div>
-          {/* Doorbell & Homepad Mini */}
-          <div style={{ display: "flex", gap: 16 }}>
-            <div
-              style={{
-                ...glassCard,
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-              }}
-            >
-              <FaDoorOpen size={38} style={{ color: "#222" }} />
-              <span style={{ fontWeight: 600 }}>Doorbell</span>
-              <Switch checked={false} />
-            </div>
-            <div
-              style={{
-                ...glassCard,
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-              }}
-            >
-              <img
-                src="https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/homepod-mini-select-202110?wid=2000&hei=2000&fmt=jpeg&qlt=95&.v=1632925511000"
-                alt="Homepad Mini"
-                style={{ width: 48, height: 48, borderRadius: "50%" }}
-              />
-              <span style={{ fontWeight: 600 }}>Homepad Mini</span>
-              <Switch checked={false} />
+            {/* Right Column */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              {/* Humidity & Temperature Status Bar*/}
+              <div style={{ display: "flex", gap: 16 }}>
+                <HumidityStatusBar
+                  value={chartData.humidity[chartData.humidity.length - 1]}
+                />
+                <TemperatureStatusBar
+                  value={chartData.temperature[chartData.temperature.length - 1]}
+                />
+              </div>
+              {/* Humidity & Temperature Chart */}
+              <div
+                style={{
+                  ...glassCard,
+                  flex: 1,
+                  minHeight: "30vh",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  paddingTop: 8,
+                  paddingBottom: "20vh",
+                }}
+              >
+                <h3 style={{ fontWeight: 600, marginBottom: 0, marginTop: 0 }}>
+                  Humidity & Temperature
+                </h3>
+                <span
+                  style={{
+                    fontSize: 13,
+                    color: "rgba(255,255,255,0.8)",
+                    marginBottom: 8,
+                  }}
+                >
+                  Monitor humidity and temperature.
+                </span>
+                <div style={{ height: 180 }}>
+                  <Line data={monitorData} options={energyOptions} />
+                </div>
+              </div>
+              {/* Doorbell & Homepad Mini */}
+              <div style={{ display: "flex", gap: 16 }}>
+                <div
+                  style={{
+                    ...glassCard,
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                  }}
+                >
+                  <FaDoorOpen size={38} style={{ color: "#222" }} />
+                  <span style={{ fontWeight: 600 }}>Doorbell</span>
+                  <Switch checked={false} />
+                </div>
+                <div
+                  style={{
+                    ...glassCard,
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                  }}
+                >
+                  <img
+                    src="https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/homepod-mini-select-202110?wid=2000&hei=2000&fmt=jpeg&qlt=95&.v=1632925511000"
+                    alt="Homepad Mini"
+                    style={{ width: 48, height: 48, borderRadius: "50%" }}
+                  />
+                  <span style={{ fontWeight: 600 }}>Homepad Mini</span>
+                  <Switch checked={false} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .homepage-main-grid {
+            width: 100vw !important;
+            min-width: 110vw !important;
+            max-width: none !important;
+            margin: 0 !important;
+            overflow-x: auto !important;
+            padding-right: 24px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

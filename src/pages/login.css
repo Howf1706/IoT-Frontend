@@ -182,3 +182,60 @@
     min-width: 0;
   }
 }
+@media (max-width: 600px) {
+  .login-container {
+    width: 96vw;
+    min-width: unset;
+    max-width: 320px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.08);
+    padding: 0;
+  }
+  .login-left, .login-right {
+    padding: 18px 6px 18px 6px;
+  }
+  .login-logo {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .login-left h2, .login-right h2 {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+  .login-left p {
+    font-size: 0.92rem;
+    margin-bottom: 10px;
+  }
+  .login-left .login-signin-btn {
+    font-size: 0.75rem !important;
+    padding: 5px 18px !important;
+    min-width: unset !important;
+    width: auto !important;
+  }
+  .login-input-group input {
+    font-size: 0.92rem;
+    padding: 7px 8px;
+  }
+  .login-socials button {
+    width: 28px;
+    height: 28px;
+    font-size: 0.95rem;
+  }
+  .login-bg-yellow, .login-bg-red {
+    width: 120px;
+    height: 120px;
+    opacity: 0.6;
+  }
+  .login-bg-yellow {
+    left: -40px;
+    bottom: -40px;
+    right: auto;
+    top: auto;
+  }
+  .login-bg-red {
+    right: -40px;
+    top: -40px;
+    left: auto;
+    bottom: auto;
+  }
+}
