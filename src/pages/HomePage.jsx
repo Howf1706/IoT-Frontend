@@ -184,7 +184,7 @@ function HomePage() {
               paddingBottom: "32px",
               margin: "0 auto",
               width: "100%",
-              maxWidth: 1200,
+              maxWidth: 1100,
             }}
           >
             {/* Left Column */}
@@ -210,7 +210,7 @@ function HomePage() {
                 >
                   <DeviceCard
                     icon={<FaLightbulb size={22} />}
-                    name="Room 1 Light"
+                    name="Living Room"
                     time="6hr 10min"
                     checked={deviceStates.light1State}
                     onToggle={() =>
@@ -219,7 +219,7 @@ function HomePage() {
                   />
                   <DeviceCard
                     icon={<FaLightbulb size={22} />}
-                    name="Room 2 Light"
+                    name="Kitchen"
                     time="3hr 45min"
                     checked={deviceStates.light2State}
                     onToggle={() =>
@@ -324,7 +324,9 @@ function HomePage() {
                   value={chartData.humidity[chartData.humidity.length - 1]}
                 />
                 <TemperatureStatusBar
-                  value={chartData.temperature[chartData.temperature.length - 1]}
+                  value={
+                    chartData.temperature[chartData.temperature.length - 1]
+                  }
                 />
               </div>
               {/* Humidity & Temperature Chart */}
@@ -559,9 +561,7 @@ function DeviceCard({ icon, name, on, time, power, checked, onToggle }) {
         {icon}
         <span style={{ fontWeight: 700, fontSize: 17 }}>{name}</span>
       </div>
-      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
-        {time} Power on time
-      </div>
+      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>{time}</div>
       <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
         {power}
       </div>

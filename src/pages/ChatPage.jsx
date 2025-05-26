@@ -8,7 +8,7 @@ function App() {
   const [isTyping, setIsTyping] = useState(false);
   const typingIntervalRef = useRef(null);
   const chatEndRef = useRef(null);
-  const apiKey = "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";
+  const apiKey = process.env.REACT_APP_GROQ_API_KEY;
   const [renegenerating, setRegenerating] = useState(false);
   const [editingConvId, setEditingConvId] = useState(null);
   const [editingConvName, setEditingConvName] = useState("");
@@ -76,10 +76,38 @@ function App() {
 
   const sendMessage = async () => {
     if (!message.trim() || isTyping) return;
+
+    const trimmedMessage = message.trim().toLowerCase();
+
+    // === Kiểm tra yêu cầu mở nhạc và truy vấn video đầu tiên ===
+    const match = trimmedMessage.match(/(?:mở|phát|nghe)\s+(?:bài\s+)?(.+)/i);
+    if (match && match[1]) {
+      const songName = match[1].trim();
+      const query = encodeURIComponent(songName);
+      const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
+
+      try {
+        const ytRes = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&key=${YOUTUBE_API_KEY}&maxResults=1`
+        );
+        const ytData = await ytRes.json();
+        const videoId = ytData.items?.[0]?.id?.videoId;
+        if (videoId) {
+          window.open(`https://www.youtube.com/watch?v=${videoId}`, "_blank");
+          setMessage("");
+          return;
+        }
+      } catch (e) {
+        alert("Không thể tìm video trên YouTube.");
+      }
+    }
+
+    // === Xử lý gọi API chat như cũ ===
     const userMessage = { role: "user", content: message };
     updateMessages([...currentConv.messages, userMessage]);
     setMessage("");
     setIsTyping(true);
+
     try {
       const response = await fetch(
         "https://api.groq.com/openai/v1/chat/completions",
