@@ -210,7 +210,7 @@ function HomePage() {
                 >
                   <DeviceCard
                     icon={<FaLightbulb size={22} />}
-                    name="Living Room"
+                    name="Lounge"
                     time="6hr 10min"
                     checked={deviceStates.light1State}
                     onToggle={() =>
